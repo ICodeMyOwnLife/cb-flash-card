@@ -1,4 +1,3 @@
-console.log("Worker");
 const docMap = {};
 const getRandom = (list) => {
     const index = Math.trunc(Math.random() / (1 / list.length));
@@ -45,18 +44,29 @@ const generateHtml = (entry) => {
     return html;
 };
 self.onmessage = ({ data }) => {
-    const { result: { body: { content }, documentId, title, }, } = data;
-    docMap[documentId] = { entries: splitDoc(content), title };
-    console.log(data);
+    switch (data.type) {
+        case "send-document":
+            const { response: { result: { body: { content }, documentId, title, }, }, } = data;
+            docMap[documentId] = { entries: splitDoc(content), title };
+            break;
+        case "request-entry": {
+            const docIds = Object.keys(docMap);
+            if (!docIds.length)
+                break;
+            const docId = getRandom(docIds);
+            const { entries, title } = docMap[docId];
+            const entry = getRandom(entries);
+            const message = {
+                type: "send-entry",
+                title,
+                html: generateHtml(entry),
+            };
+            self.postMessage(message);
+            break;
+        }
+        default:
+            break;
+    }
 };
-setInterval(() => {
-    const docIds = Object.keys(docMap);
-    if (!docIds.length)
-        return;
-    const docId = getRandom(docIds);
-    const { entries, title } = docMap[docId];
-    const entry = getRandom(entries);
-    self.postMessage({ title, html: generateHtml(entry) });
-}, 1000);
 export {};
 //# sourceMappingURL=docs.js.map

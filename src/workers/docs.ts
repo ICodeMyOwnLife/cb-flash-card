@@ -1,7 +1,5 @@
 declare const self: DedicatedWorkerGlobalScope;
 
-console.log("Worker");
-
 const docMap: Record<string, Document> = {};
 
 const getRandom = <TData>(list: TData[]) => {
@@ -62,30 +60,44 @@ const generateHtml = (entry: gapi.client.Paragraph[]) => {
   return html;
 };
 
-self.onmessage = ({ data }) => {
-  const {
-    result: {
-      body: { content },
-      documentId,
-      title,
-    },
-  } = data as gapi.client.Response;
-  docMap[documentId] = { entries: splitDoc(content), title };
-  console.log(data);
+self.onmessage = ({ data }: MessageEvent<WorkerMessage>) => {
+  switch (data.type) {
+    case "send-document":
+      const {
+        response: {
+          result: {
+            body: { content },
+            documentId,
+            title,
+          },
+        },
+      } = data;
+      docMap[documentId] = { entries: splitDoc(content), title };
+      break;
+
+    case "request-entry": {
+      const docIds = Object.keys(docMap);
+      if (!docIds.length) break;
+      const docId = getRandom(docIds);
+      const { entries, title } = docMap[docId];
+      const entry = getRandom(entries);
+      const message: SendEntryMessage = {
+        type: "send-entry",
+        title,
+        html: generateHtml(entry),
+      };
+      self.postMessage(message);
+      break;
+    }
+
+    default:
+      break;
+  }
 };
-
-setInterval(() => {
-  const docIds = Object.keys(docMap);
-  if (!docIds.length) return;
-  const docId = getRandom(docIds);
-  const { entries, title } = docMap[docId];
-  const entry = getRandom(entries);
-  self.postMessage({ title, html: generateHtml(entry) });
-}, 1000);
-
-export {};
 
 interface Document {
   title: string;
   entries: gapi.client.Paragraph[][];
 }
+
+export {};

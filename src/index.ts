@@ -1,14 +1,18 @@
-const flashCard = document.getElementById("flashCard") as HTMLDivElement;
+const flashCardDiv = document.getElementById("flashCard") as HTMLDivElement;
+const titleDiv = document.getElementById("title") as HTMLDivElement;
+const nextButton = document.getElementById("nextButton") as HTMLButtonElement;
+const autoButton = document.getElementById("autoButton") as HTMLButtonElement;
 const worker = new Worker("./build/workers/docs.js", { type: "module" });
-worker.onmessage = ({ data }) => (flashCard.innerHTML = data.html);
+let timer: number | undefined;
 
 const handleClientLoad = () => {
   const handleSignInStatus = async (isSignedIn: boolean) => {
     if (isSignedIn) {
-      const document = await gapi.client.docs.documents.get({
+      const response = await gapi.client.docs.documents.get({
         documentId: "1VU4v9j6DpD05SKaLv1vOxaD0rFfZU75k6MWfTvGy_pA",
       });
-      worker.postMessage(document);
+      const message: SendDocumentMessage = { type: "send-document", response };
+      worker.postMessage(message);
     } else {
       gapi.auth2.getAuthInstance().signIn();
     }
@@ -32,4 +36,32 @@ const handleClientLoad = () => {
       console.error(error);
     }
   });
+};
+
+const requestEntry = () => {
+  const message: RequestEntryMessage = { type: "request-entry" };
+  worker.postMessage(message);
+};
+
+worker.onmessage = ({ data }: MessageEvent<WorkerMessage>) => {
+  switch (data.type) {
+    case "send-entry":
+      const { html, title } = data;
+      flashCardDiv.innerHTML = html;
+      titleDiv.textContent = title;
+      break;
+
+    default:
+      break;
+  }
+};
+
+nextButton.onclick = () => {
+  if (timer) clearInterval(timer);
+  requestEntry();
+};
+
+autoButton.onclick = () => {
+  if (timer) clearInterval(timer);
+  timer = setInterval(requestEntry, 20000);
 };
