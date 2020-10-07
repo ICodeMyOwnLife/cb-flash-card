@@ -1,0 +1,4 @@
+{
+  "extends": ["react-ts"],
+  "rules": { "no-undef": "off" }
+}

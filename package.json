@@ -1,16 +1,99 @@
 {
   "name": "cb-flash-cards",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "English Flash Cards",
+  "author": "Hien CB",
   "license": "MIT",
+  "private": false,
   "scripts": {
-    "build": "tsc -p .",
-    "build:watch": "tsc -w -p ."
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "build": "REACT_APP_VERSION=$npm_package_version react-scripts build",
+    "build:public": "tsc -w -p public",
+    "commit": "git-cz",
+    "eject": "react-scripts eject",
+    "format": "prettier --write \"src/**/*.{ts,tsx,md}\"",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "yarn lint --fix",
+    "release": "release-it --ci",
+    "size": "size-limit",
+    "start": "REACT_APP_VERSION=$npm_package_version react-scripts start",
+    "test": "react-scripts test",
+    "type-check": "tsc --noEmit"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@material-ui/core": "^4.11.0",
+    "@release-it/conventional-changelog": "^2.0.0",
+    "@size-limit/preset-app": "^4.6.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
     "@types/gapi": "^0.0.39",
     "@types/gapi.auth2": "^0.0.52",
-    "ts-node": "^9.0.0",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.9.51",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@types/react-router-dom": "^5.1.6",
+    "cb-hooks": "^2.5.4",
+    "clsx": "^1.1.1",
+    "commitizen": "^4.2.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.10.0",
+    "eslint-config-react-ts": "^2.1.5",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-hook-form": "^6.9.2",
+    "react-redux": "^7.2.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.3",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-saga": "1.1.3",
+    "release-it": "^14.0.3",
+    "size-limit": "^4.6.0",
+    "source-map-explorer": "^2.5.0",
     "typescript": "^4.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "yarn type-check && yarn lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn lint:fix"
+    ],
+    "{*.{json,md}}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">= 12.0.0"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

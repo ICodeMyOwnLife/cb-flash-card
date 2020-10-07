@@ -1,14 +1,14 @@
 interface SendDocumentMessage {
-  type: "send-document";
+  type: 'send-document';
   response: gapi.client.Response;
 }
 
 interface RequestEntryMessage {
-  type: "request-entry";
+  type: 'request-entry';
 }
 
 interface SendEntryMessage {
-  type: "send-entry";
+  type: 'send-entry';
   title: string;
   html: string;
 }
