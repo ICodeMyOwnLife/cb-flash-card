@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -8,7 +8,6 @@
       "WebWorker",
       "WebWorker.ImportScripts"
     ],
-    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -28,10 +27,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react"
+    "isolatedModules": true
   },
-  "include": ["src"],
-  "exclude": ["public"]
+  "include": ["scripts", "workers", "../src/types"]
 }
