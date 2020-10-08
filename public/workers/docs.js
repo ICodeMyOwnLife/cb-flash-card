@@ -52,11 +52,18 @@ const generateHtml = (entry) => {
 };
 self.onconnect = ({ ports: [port] }) => {
     port.onmessage = ({ data }) => {
+        console.log(data);
         switch (data.type) {
-            case 'send-document':
+            case 'send-document': {
                 const { response: { result: { body: { content }, documentId, title, }, }, } = data;
                 docMap[documentId] = { entries: splitDoc(content), title };
+                const msg = {
+                    type: 'send-titles',
+                    titles: Object.values(docMap).map(({ title }) => title),
+                };
+                port.postMessage(msg);
                 break;
+            }
             case 'request-entry': {
                 const docIds = Object.keys(docMap);
                 if (!docIds.length)
@@ -64,12 +71,12 @@ self.onconnect = ({ ports: [port] }) => {
                 const docId = getRandom(docIds);
                 const { entries, title } = docMap[docId];
                 const entry = getRandom(entries);
-                const message = {
+                const msg = {
                     type: 'send-entry',
                     title,
                     html: generateHtml(entry),
                 };
-                port.postMessage(message);
+                port.postMessage(msg);
                 break;
             }
             default:
