@@ -73,8 +73,9 @@ const generateHtml = (entry: gapi.client.Paragraph[]) => {
 
 self.onconnect = ({ ports: [port] }) => {
   port.onmessage = ({ data }: MessageEvent<WorkerMessage>) => {
+    console.log(data);
     switch (data.type) {
-      case 'send-document':
+      case 'send-document': {
         const {
           response: {
             result: {
@@ -85,7 +86,13 @@ self.onconnect = ({ ports: [port] }) => {
           },
         } = data;
         docMap[documentId] = { entries: splitDoc(content), title };
+        const msg: SendTitlesMessage = {
+          type: 'send-titles',
+          titles: Object.values(docMap).map(({ title }) => title),
+        };
+        port.postMessage(msg);
         break;
+      }
 
       case 'request-entry': {
         const docIds = Object.keys(docMap);
@@ -93,12 +100,12 @@ self.onconnect = ({ ports: [port] }) => {
         const docId = getRandom(docIds);
         const { entries, title } = docMap[docId];
         const entry = getRandom(entries);
-        const message: SendEntryMessage = {
+        const msg: SendEntryMessage = {
           type: 'send-entry',
           title,
           html: generateHtml(entry),
         };
-        port.postMessage(message);
+        port.postMessage(msg);
         break;
       }
 
